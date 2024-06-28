@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+    char name[4];
+    int bt;
+    int tat;
+    int wt;
+} Process;
+
+void findWaitingTime(Process processes[], int n) {
+    processes[0].wt = 0;
+    for (int i = 1; i < n; i++) {
+        processes[i].wt = 0;
+        for (int j = 0; j < i; j++) {
+            processes[i].wt += processes[j].bt;
+        }
+    }
+}
+
+void findTurnAroundTime(Process processes[], int n) {
+    for (int i = 0; i < n; i++) {
+        processes[i].tat = processes[i].bt + processes[i].wt;
+    }
+}
+
+void findavgTime(Process processes[], int n) {
+    int total_wt = 0, total_tat = 0;
+
+    findWaitingTime(processes, n);
+    findTurnAroundTime(processes, n);
+
+    printf("Process Burst Time Waiting Time Turn Around Time\n");
+
+    for (int i = 0; i < n; i++) {
+        total_wt += processes[i].wt;
+        total_tat += processes[i].tat;
+        printf(" %s\t\t%d\t\t%d\t\t%d\n", processes[i].name, processes[i].bt, processes[i].wt, processes[i].tat);
+    }
+
+    float avg_wt = (float)total_wt / (float)n;
+    float avg_tat = (float)total_tat / (float)n;
+    printf("Average Waiting Time = %f\n", avg_wt);
+    printf("Average Turn Around Time = %f\n", avg_tat);
+}
+
+int main() {
+    int n;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    Process processes[n];
+
+    for (int i = 0; i < n; i++) {
+        sprintf(processes[i].name, "P%d", i);
+        printf("Enter burst time for %s: ", processes[i].name);
+        scanf("%d", &processes[i].bt);
+    }
+
+    // Sorting process according to their Burst Time (SJF)
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (processes[j].bt < processes[i].bt) {
+                Process temp = processes[i];
+                processes[i] = processes[j];
+                processes[j] = temp;
+            }
+        }
+    }
+
+    findavgTime(processes, n);
+    return 0;
+}
